@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Капитанская дочка — главное</title>
+<style>
+  body {
+    font-family: system-ui, sans-serif;
+    background: #1a1f35;
+    color: #eef1ff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+  }
+  .box {
+    background: #232a45;
+    padding: 30px;
+    border-radius: 16px;
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+  }
+  h1 { font-size: 20px; margin: 0 0 5px; }
+  .counter { color: #9aa3c7; font-size: 14px; margin-bottom: 20px; }
+  .question { font-size: 18px; margin-bottom: 20px; line-height: 1.5; }
+  .answer {
+    background: #1a1f35;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    color: #cfe0ff;
+    line-height: 1.5;
+    display: none;
+  }
+  .answer.show { display: block; }
+  button {
+    background: #4f6ef7;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 15px;
+    cursor: pointer;
+    margin: 5px;
+  }
+  button:hover { background: #6c8cff; }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>«Капитанская дочка» — главное</h1>
+  <div class="counter" id="counter"></div>
+  <div class="question" id="question"></div>
+  <div class="answer" id="answer"></div>
+  <div>
+    <button id="prev">← Назад</button>
+    <button id="show">Показать ответ</button>
+    <button id="next">Вперёд →</button>
+  </div>
+</div>
+
+<script>
+const questions = [
+  { q: "В каком чине Пётр Гринёв был записан в Семёновский полк ещё до рождения?", a: "В чине сержанта гвардии." },
+  { q: "Кто был дядькой (воспитателем) Гринёва?", a: "Савельич (Архип Савельев)." },
+  { q: "В какой город отец велел ехать Гринёву вместо Петербурга?", a: "В Оренбург." },
+  { q: "Какую пословицу сказал отец, провожая сына на службу?", a: "«Береги платье снову, а честь смолоду»." },
+  { q: "Сколько денег проиграл Гринёв Ивану Зурину в Симбирске?", a: "Сто рублей." },
+  { q: "В какую погоду Гринёв и Савельич сбились с дороги?", a: "В сильный буран (метель)." },
+  { q: "Кого они встретили в степи во время бурана?", a: "Вожатого — будущего Пугачёва." },
+  { q: "Что подарил Гринёв вожатому в благодарность за спасение?", a: "Свой заячий тулуп." },
+  { q: "В какую крепость направлялся Гринёв на службу?", a: "В Белогорскую крепость." },
+  { q: "Кто комендант Белогорской крепости?", a: "Иван Кузьмич Миронов." },
+  { q: "Как звали жену коменданта?", a: "Василиса Егоровна." },
+  { q: "Как звали дочь коменданта?", a: "Марья Ивановна (Маша)." },
+  { q: "Как звали поручика, который ухаживал за Машей и позже стал врагом Гринёва?", a: "Алексей Иванович Швабрин." },
+  { q: "Из-за чего произошла первая ссора Гринёва и Швабрина?", a: "Из-за стихотворения Гринёва, посвящённого Маше, и оскорбительных слов Швабрина о ней." },
+  { q: "Чем закончилась вторая дуэль для Гринёва?", a: "Швабрин ранил его в грудь, под правое плечо, когда Гринёв обернулся на крик Савельича." },
+  { q: "Что писал Гринёв в письме отцу?", a: "Просил благословения на брак с Машей." },
+  { q: "Какой ответ получил Гринёв от отца?", a: "Отказ в благословении и гневное письмо." },
+  { q: "Кем себя выдавал Емельян Пугачёв?", a: "Петром III, покойным императором." },
+  { q: "Как погиб комендант Иван Кузьмич Миронов?", a: "Был повешен на виселице." },
+  { q: "Кто спас Машу от расправы?", a: "Попадья Акулина Памфиловна спрятала Машу у себя, выдав её за больную родственницу." },
+  { q: "Как Швабрин оказался в стане Пугачёва?", a: "Он перешёл на сторону мятежников." },
+  { q: "Что сказал Пугачёв, узнав Гринёва?", a: "Он узнал Гринёва и помиловал его, вспомнив подаренный заячий тулуп." },
+  { q: "Кто выступил в защиту Гринёва перед Пугачёвым?", a: "Савельич." },
+  { q: "Какую сказку рассказал Пугачёв Гринёву по дороге в Белогорскую крепость?", a: "Калмыцкую сказку о вороне и орле: лучше раз напиться живой крови, чем триста лет питаться падалью." },
+  { q: "В чём обвинили Гринёва на суде?", a: "Его подозревали в государственной измене и связях с Пугачёвым." },
+  { q: "Кто был главным свидетелем обвинения?", a: "Швабрин." },
+  { q: "Кто спас Гринёва от наказания?", a: "Маша добилась помилования Гринёва, обратившись к Екатерине II." },
+  { q: "С кем встретилась Маша в саду?", a: "С императрицей (не зная, кто она)." },
+  { q: "Что случилось с Пугачёвым?", a: "Был казнён." },
+  { q: "В каком году был опубликован роман?", a: "1836 год." },
+  { q: "Какая пословица стала эпиграфом ко всему роману?", a: "«Береги честь смолоду»." },
+  { q: "Какова главная тема романа?", a: "Честь, долг, любовь, пугачёвское восстание." }
+];
+
+let i = 0;
+let shown = false;
+
+const counterEl  = document.getElementById("counter");
+const questionEl = document.getElementById("question");
+const answerEl   = document.getElementById("answer");
+const prevBtn    = document.getElementById("prev");
+const nextBtn    = document.getElementById("next");
+const showBtn    = document.getElementById("show");
+
+function render() {
+  counterEl.textContent  = "Вопрос " + (i + 1) + " из " + questions.length;
+  questionEl.textContent = questions[i].q;
+  answerEl.textContent   = questions[i].a;
+  answerEl.className     = shown ? "answer show" : "answer";
+  showBtn.textContent    = shown ? "Скрыть ответ" : "Показать ответ";
+  prevBtn.disabled       = i === 0;
+  nextBtn.disabled       = i === questions.length - 1;
+}
+
+showBtn.onclick = () => { shown = !shown; render(); };
+nextBtn.onclick = () => { if (i < questions.length - 1) { i++; shown = false; render(); } };
+prevBtn.onclick = () => { if (i > 0) { i--; shown = false; render(); } };
+
+render();
+</script>
+</body>
+</html>
